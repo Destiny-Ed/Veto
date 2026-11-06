@@ -1,24 +1,11 @@
-import 'package:hive/hive.dart';
-
-part 'trade.g.dart';
-
-@HiveType(typeId: 0)
 class Trade {
-  @HiveField(0)
   final String id;
-  @HiveField(1)
   final DateTime timestamp;
-  @HiveField(2)
   final String pair;
-  @HiveField(3)
-  final String direction; // buy/sell
-  @HiveField(4)
-  final String result; // win/loss/be
-  @HiveField(5)
+  final String direction;
+  final String result;
   final bool heldToTarget;
-  @HiveField(6)
   final bool interfered;
-  @HiveField(7)
   final String? note;
 
   Trade({
@@ -31,4 +18,26 @@ class Trade {
     required this.interfered,
     this.note,
   });
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'timestamp': timestamp.toIso8601String(),
+        'pair': pair,
+        'direction': direction,
+        'result': result,
+        'heldToTarget': heldToTarget,
+        'interfered': interfered,
+        'note': note,
+      };
+
+  factory Trade.fromMap(Map<String, dynamic> map) => Trade(
+        id: map['id'],
+        timestamp: DateTime.parse(map['timestamp']),
+        pair: map['pair'],
+        direction: map['direction'],
+        result: map['result'],
+        heldToTarget: map['heldToTarget'] ?? true,
+        interfered: map['interfered'] ?? false,
+        note: map['note'],
+      );
 }
