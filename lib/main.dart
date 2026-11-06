@@ -51,7 +51,7 @@ class VetoApp extends StatelessWidget {
               letterSpacing: 0.5,
             ),
           ),
-          cardTheme: CardTheme(
+          cardTheme: CardThemeData(
             color: const Color(0xFF121826),
             elevation: 0,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
