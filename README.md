@@ -8,21 +8,31 @@ Veto locks your selected trading apps until you complete the morning checklist a
 - Onboarding with rule setup and app selection
 - Morning checklist + affirmation gate
 - Lock state machine (Locked / Unlocked / Day Closed)
-- Trade logging with result, hold/interfere tracking
+- Trade logging with result, hold/interfere tracking + persistence
 - History and clean-day streak
-- Platform channel ready for Android Accessibility Service and iOS Family Controls / Screen Time blocker
+- **Platform channel integrations**:
+  - **Android**: Full Accessibility Service that sends blocked apps to home when locked
+  - **iOS**: MethodChannel structure for Family Controls / ManagedSettings (requires entitlement; graceful fallback)
 
 ## UI
 Vibrant dark theme with blue accents matching TradingView chart style (#0A0E17 background, #1E88E5 primary).
 
-## Platform Blocker
-- **Android**: Accessibility Service (to be implemented in native code) to detect and close/overlay selected packages when locked.
-- **iOS**: Family Controls + ManagedSettings via platform channel. Requires Family Controls entitlement (restricted; fallback to friction UI if denied).
+## Platform Blocker Details
+
+### Android
+1. User grants Accessibility permission (prompted during onboarding).
+2. `VetoAccessibilityService` watches `TYPE_WINDOW_STATE_CHANGED`.
+3. When locked and a selected package opens, it performs `GLOBAL_ACTION_HOME`.
+
+### iOS
+Family Controls entitlement is required for real app shielding. The channel is wired; without the entitlement the calls log and continue. Fallback is strong UI friction + notifications.
 
 ## Getting Started
 ```bash
 flutter pub get
 flutter run
 ```
+
+On Android, after install go to Settings → Accessibility and enable Veto.
 
 Built for traders who are good at analysis but struggle with stopping after a loss.
