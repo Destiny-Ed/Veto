@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../models/session.dart';
 import '../models/trade.dart';
+import '../services/blocker_service.dart';
 
 class AppState extends ChangeNotifier {
   late Box _box;
@@ -23,7 +24,11 @@ class AppState extends ChangeNotifier {
     firstLossDone = _box.get('firstLossDone', defaultValue: true);
     selectedApps = List<String>.from(_box.get('selectedApps', defaultValue: []));
     cleanStreak = _box.get('cleanStreak', defaultValue: 0);
+    // Load trades as simple maps for now (full Hive adapter later)
+    final rawTrades = _box.get('all_trades', defaultValue: <Map>[]);
+    trades = (rawTrades as List).map((m) => Trade.fromMap(Map<String, dynamic>.from(m))).toList();
     _loadToday();
+    await _applyLockState();
     notifyListeners();
   }
 
@@ -39,10 +44,19 @@ class AppState extends ChangeNotifier {
   void _updateState() {
     if (!checklistDoneToday) {
       currentState = LockState.pendingMorning;
-    } else if (todayHadLoss && firstLossDone || todayTrades >= maxTrades) {
+    } else if ((todayHadLoss && firstLossDone) || todayTrades >= maxTrades) {
       currentState = LockState.dayClosed;
     } else {
       currentState = LockState.unlocked;
+    }
+  }
+
+  Future<void> _applyLockState() async {
+    if (selectedApps.isEmpty) return;
+    if (currentState == LockState.unlocked) {
+      await BlockerService.unlockApps(selectedApps);
+    } else {
+      await BlockerService.lockApps(selectedApps);
     }
   }
 
@@ -59,6 +73,8 @@ class AppState extends ChangeNotifier {
     await _box.put('maxTrades', max);
     await _box.put('firstLossDone', firstLoss);
     await _box.put('selectedApps', apps);
+    await BlockerService.requestPermissions();
+    await _applyLockState();
     notifyListeners();
   }
 
@@ -68,8 +84,8 @@ class AppState extends ChangeNotifier {
     final key = '${today.year}-${today.month}-${today.day}';
     await _box.put('checklist_$key', true);
     _updateState();
+    await _applyLockState();
     notifyListeners();
-    // TODO: unlock apps via platform channel
   }
 
   Future<void> logTrade(Trade trade) async {
@@ -80,10 +96,9 @@ class AppState extends ChangeNotifier {
     final key = '${today.year}-${today.month}-${today.day}';
     await _box.put('trades_$key', todayTrades);
     await _box.put('loss_$key', todayHadLoss);
+    await _box.put('all_trades', trades.map((t) => t.toMap()).toList());
     _updateState();
-    if (currentState == LockState.dayClosed) {
-      // TODO: lock apps via platform channel
-    }
+    await _applyLockState();
     notifyListeners();
   }
 
