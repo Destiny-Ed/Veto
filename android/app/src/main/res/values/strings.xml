@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">Veto uses this to lock selected trading apps when your rules require it.</string>
+</resources>
