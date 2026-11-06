@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
-import '../models/session.dart';
+import '../models/session.dart' as lock;
 import 'checklist_screen.dart';
 import 'log_trade_screen.dart';
 import 'history_screen.dart';
@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
           children: [
             _StatusCard(state: state),
             const SizedBox(height: 32),
-            if (state.currentState == LockState.pendingMorning)
+            if (state.currentState == lock.LockState.pendingMorning)
               ElevatedButton(
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChecklistScreen())),
                 child: const Text('Complete Morning Checklist'),
@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LogTradeScreen())),
                 child: const Text('Log a Trade'),
               ),
-            if (state.currentState == LockState.dayClosed)
+            if (state.currentState == lock.LockState.dayClosed)
               const Padding(
                 padding: EdgeInsets.only(top: 16),
                 child: Text(
