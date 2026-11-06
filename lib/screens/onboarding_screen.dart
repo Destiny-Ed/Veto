@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
+import '../services/blocker_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -14,7 +15,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   int _page = 0;
   int _maxTrades = 2;
   bool _firstLoss = true;
-  final List<String> _availableApps = ['MetaTrader 5', 'TradingView', 'cTrader', 'Thinkorswim'];
+  final List<String> _availableApps = BlockerService.knownApps.keys.toList();
   final Set<String> _selected = {};
 
   @override
@@ -156,7 +157,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           const Icon(Icons.verified, size: 64, color: Color(0xFF1E88E5)),
           const SizedBox(height: 24),
           const Text(
-            'I commit to following my rules.\nAfter a loss or my max trades, Veto locks the apps.\nI will not negotiate in the moment.',
+            'I commit to following my rules.\nAfter a loss or my max trades, Veto locks the apps.\nI will not negotiate in the moment.\n\nOn Android you will be asked to enable Accessibility.',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18, height: 1.6),
           ),
